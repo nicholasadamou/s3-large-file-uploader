@@ -1,0 +1,42 @@
+# Test your FastAPI endpoints
+
+### Test root endpoint
+GET http://127.0.0.1:8000/
+Accept: application/json
+
+### Start a multipart upload
+POST http://127.0.0.1:8000/api/start-upload
+Content-Type: application/json
+
+{
+  "filename": "test-file.mp4",
+  "content_type": "video/mp4",
+  "user_id": "user123"
+}
+
+### Get a signed URL for part upload
+# Replace with actual values from start-upload response
+GET http://127.0.0.1:8000/api/get-signed-url?upload_id=YOUR_UPLOAD_ID&key=test-file.mp4&part_number=1
+Accept: application/json
+
+### Record an uploaded part
+POST http://127.0.0.1:8000/api/upload-part
+Content-Type: application/json
+
+{
+  "upload_id": "YOUR_UPLOAD_ID",
+  "key": "test-file.mp4",
+  "part_number": 1,
+  "etag": "\"YOUR_ETAG_FROM_S3\"",
+  "user_id": "user123"
+}
+
+### Complete the multipart upload
+POST http://127.0.0.1:8000/api/complete-upload
+Content-Type: application/json
+
+{
+  "upload_id": "YOUR_UPLOAD_ID",
+  "key": "test-file.mp4",
+  "user_id": "user123"
+}
