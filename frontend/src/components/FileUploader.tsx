@@ -25,10 +25,11 @@ export default function FileUploader() {
       const userId = "demo-user";
 
       // Step 1: Start Upload
-      const { data: startRes } = await axios.post(
-        `${API_BASE_URL}/start-upload`,
-        { filename: file.name, contentType: file.type, userId }
-      );
+      const { data: startRes } = await axios.post(`${API_BASE_URL}/start-upload`, {
+        filename: file.name,
+        contentType: file.type,
+        userId,
+      });
       const { uploadId, key } = startRes;
 
       // Step 2: Upload Each Chunk using Signed URLs
@@ -39,10 +40,11 @@ export default function FileUploader() {
         const partNumber = i + 1;
 
         // Get signed URL from backend
-        const { data: { signedUrl } } = await axios.get(
-          `${API_BASE_URL}/get-signed-url`,
-          { params: { uploadId, key, partNumber } }
-        );
+        const {
+          data: { signedUrl },
+        } = await axios.get(`${API_BASE_URL}/get-signed-url`, {
+          params: { uploadId, key, partNumber },
+        });
 
         // Upload directly to S3
         const uploadRes = await fetch(signedUrl, {
@@ -58,17 +60,22 @@ export default function FileUploader() {
 
         // Notify backend
         await axios.post(`${API_BASE_URL}/upload-part`, {
-          uploadId, key, partNumber, ETag, userId
+          uploadId,
+          key,
+          partNumber,
+          ETag,
+          userId,
         });
 
         setProgress(Math.round(((i + 1) / totalChunks) * 100));
       }
 
       // Step 3: Complete Upload
-      const { data: completeRes } = await axios.post(
-        `${API_BASE_URL}/complete-upload`,
-        { uploadId, key, userId }
-      );
+      const { data: completeRes } = await axios.post(`${API_BASE_URL}/complete-upload`, {
+        uploadId,
+        key,
+        userId,
+      });
 
       setStatus(`✅ Upload complete! File URL: ${completeRes.location}`);
     } catch (error) {
@@ -82,11 +89,7 @@ export default function FileUploader() {
   return (
     <div style={{ maxWidth: "600px", margin: "auto" }}>
       <h2>Large File Uploader (Signed URL)</h2>
-      <input
-        type="file"
-        onChange={handleUpload}
-        disabled={isUploading}
-      />
+      <input type="file" onChange={handleUpload} disabled={isUploading} />
       <div style={{ marginTop: "10px" }}>
         {isUploading && (
           <div>

@@ -42,16 +42,19 @@ sequenceDiagram
 This frontend stack was chosen for several compelling reasons:
 
 ### Performance
+
 - **Fast Development**: Vite provides lightning-fast HMR (Hot Module Replacement)
 - **Optimized Build**: Produces highly optimized production builds with tree-shaking
 - **Efficient Rendering**: React's virtual DOM minimizes expensive DOM operations
 
 ### Developer Experience
+
 - **Type Safety**: TypeScript catches errors at compile time rather than runtime
 - **Component Reusability**: React's component-based architecture promotes code reuse
 - **Modern Tooling**: ESLint integration for code quality and consistency
 
 ### S3 Integration
+
 - **Chunk Management**: Efficiently handles file chunking for multipart uploads
 - **Progress Tracking**: Real-time upload progress with cancelation support
 - **Direct-to-S3**: Uses signed URLs for secure direct uploads to S3
@@ -73,17 +76,26 @@ This frontend stack was chosen for several compelling reasons:
 ## Installation
 
 1. Clone the repository:
+
    ```
    git clone https://github.com/yourusername/react-s3-multipart-uploader.git
    cd react-s3-multipart-uploader
    ```
 
 2. Install dependencies:
+
    ```
    pnpm install
    ```
 
-3. Create a `.env` file with your configuration:
+3. Install pre-commit:
+
+   ```
+   pip install pre-commit
+   pre-commit install
+   ```
+
+4. Create a `.env` file with your configuration:
    ```
    VITE_API_BASE_URL=http://localhost:4000/api
    ```
@@ -91,6 +103,7 @@ This frontend stack was chosen for several compelling reasons:
 ## Running the Application
 
 Start the development server:
+
 ```
 pnpm dev
 ```
@@ -98,11 +111,13 @@ pnpm dev
 The application will be available at http://localhost:3000
 
 Build for production:
+
 ```
 pnpm build
 ```
 
 Preview the production build:
+
 ```
 pnpm preview
 ```
@@ -119,6 +134,7 @@ This project includes Docker configuration for easy deployment with containers.
 ### Setup
 
 1. Build and start the container:
+
    ```
    docker compose up --build
    ```
@@ -131,6 +147,7 @@ This project includes Docker configuration for easy deployment with containers.
 - **Environment Variables**: Configure API endpoints through Docker Compose
 
 To stop the container:
+
 ```
 docker compose down
 ```
@@ -146,12 +163,12 @@ The application can be configured through environment variables:
 1. The user selects a file for upload
 2. The application divides the file into chunks (default: 10MB)
 3. For each chunk:
-	- Requests a signed URL from the backend
-	- Uploads the chunk directly to S3 using the signed URL
-	- Reports progress to the user
+   - Requests a signed URL from the backend
+   - Uploads the chunk directly to S3 using the signed URL
+   - Reports progress to the user
 4. After all chunks are uploaded, the application requests the backend to complete the multipart upload
 5. The user receives a link to the uploaded file
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

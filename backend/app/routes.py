@@ -5,9 +5,12 @@ from .s3 import s3_client, S3_BUCKET_NAME
 
 router = APIRouter()
 
-@router.post("/api/start-upload",
-             summary="Initialize a multipart upload",
-             description="Creates a new multipart upload session in S3 and records it in the database")
+
+@router.post(
+    "/api/start-upload",
+    summary="Initialize a multipart upload",
+    description="Creates a new multipart upload session in S3 and records it in the database",
+)
 async def start_upload(request: StartUploadRequest):
     """
     Start a new multipart upload process:
@@ -21,18 +24,23 @@ async def start_upload(request: StartUploadRequest):
     response = s3_client.create_multipart_upload(
         Bucket=S3_BUCKET_NAME, Key=request.filename, ContentType=request.content_type
     )
-    await uploads_collection.insert_one({
-        "user_id": request.user_id,
-        "key": response["Key"],
-        "upload_id": response["UploadId"],
-        "parts": [],
-        "status": "initiated",
-    })
+    await uploads_collection.insert_one(
+        {
+            "user_id": request.user_id,
+            "key": response["Key"],
+            "upload_id": response["UploadId"],
+            "parts": [],
+            "status": "initiated",
+        }
+    )
     return {"upload_id": response["UploadId"], "key": response["Key"]}
 
-@router.get("/api/get-signed-url",
-            summary="Get a pre-signed URL for part upload",
-            description="Generates a pre-signed URL that allows direct upload to S3")
+
+@router.get(
+    "/api/get-signed-url",
+    summary="Get a pre-signed URL for part upload",
+    description="Generates a pre-signed URL that allows direct upload to S3",
+)
 async def get_signed_url(upload_id: str, key: str, part_number: int):
     """
     Generate a pre-signed URL for uploading a specific part:
@@ -55,9 +63,12 @@ async def get_signed_url(upload_id: str, key: str, part_number: int):
     )
     return {"signed_url": signed_url}
 
-@router.post("/api/upload-part",
-             summary="Record a successfully uploaded part",
-             description="Updates the database with information about an uploaded part")
+
+@router.post(
+    "/api/upload-part",
+    summary="Record a successfully uploaded part",
+    description="Updates the database with information about an uploaded part",
+)
 async def upload_part(request: UploadPartRequest):
     """
     Record a part that was successfully uploaded to S3:
@@ -69,15 +80,26 @@ async def upload_part(request: UploadPartRequest):
     The client should call this after successfully uploading a part using the pre-signed URL.
     """
     await uploads_collection.update_one(
-        {"upload_id": request.upload_id, "key": request.key, "user_id": request.user_id},
-        {"$push": {"parts": {"etag": request.etag, "part_number": request.part_number}},
-         "$set": {"status": "in-progress"}},
+        {
+            "upload_id": request.upload_id,
+            "key": request.key,
+            "user_id": request.user_id,
+        },
+        {
+            "$push": {
+                "parts": {"etag": request.etag, "part_number": request.part_number}
+            },
+            "$set": {"status": "in-progress"},
+        },
     )
     return {"success": True}
 
-@router.post("/api/complete-upload",
-             summary="Complete the multipart upload",
-             description="Finalizes the multipart upload by combining all parts in S3")
+
+@router.post(
+    "/api/complete-upload",
+    summary="Complete the multipart upload",
+    description="Finalizes the multipart upload by combining all parts in S3",
+)
 async def complete_upload(request: CompleteUploadRequest):
     """
     Complete a multipart upload by combining all uploaded parts:
@@ -93,24 +115,28 @@ async def complete_upload(request: CompleteUploadRequest):
         {"upload_id": request.upload_id, "key": request.key, "user_id": request.user_id}
     )
     if not upload or not upload.get("parts"):
-        raise HTTPException(status_code=404, detail="Upload session not found or no parts uploaded")
+        raise HTTPException(
+            status_code=404, detail="Upload session not found or no parts uploaded"
+        )
 
     sorted_parts = sorted(upload["parts"], key=lambda x: x["part_number"])
     payload = {
         "Bucket": S3_BUCKET_NAME,
         "Key": request.key,
         "UploadId": request.upload_id,
-        "MultipartUpload": {"Parts": [
-            {"ETag": part["etag"], "PartNumber": part["part_number"]} for part in sorted_parts
-        ]},
+        "MultipartUpload": {
+            "Parts": [
+                {"ETag": part["etag"], "PartNumber": part["part_number"]}
+                for part in sorted_parts
+            ]
+        },
     }
     response = s3_client.complete_multipart_upload(**payload)
     await uploads_collection.update_one(
-        {"upload_id": request.upload_id},
-        {"$set": {"status": "completed"}}
+        {"upload_id": request.upload_id}, {"$set": {"status": "completed"}}
     )
     return {
         "message": "Upload completed successfully",
         "location": response["Location"],
-        "key": response["Key"]
+        "key": response["Key"],
     }

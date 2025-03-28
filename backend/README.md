@@ -124,7 +124,13 @@ MongoDB's combination of flexibility, performance, and scalability makes it part
    pip install -r requirements.txt
    ```
 
-4. Create a `.env` file with your configuration:
+4. Install pre-commit:
+
+   ```
+   pre-commit install
+   ```
+
+5. Create a `.env` file with your configuration:
    ```
    AWS_REGION=your-region
    AWS_ACCESS_KEY_ID=your-access-key
@@ -141,6 +147,19 @@ uvicorn main:app --reload
 ```
 
 The API will be available at http://127.0.0.1:8000
+
+## API Documentation
+
+The API includes automatic interactive documentation powered by Swagger UI:
+
+- **Swagger UI**: Access at http://localhost:8000/docs when the server is running
+- **ReDoc**: Alternative documentation available at http://localhost:8000/redoc
+
+These interactive documentation pages allow you to:
+- Browse all available endpoints
+- See request/response schemas
+- Test API endpoints directly from your browser
+- Understand authentication requirements
 
 ## Running with Docker
 
@@ -201,4 +220,4 @@ Use the included `test_main.http` file with REST Client for VS Code or similar t
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
