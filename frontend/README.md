@@ -63,7 +63,6 @@ This frontend stack was chosen for several compelling reasons:
 
 - Upload large files (>5GB) to S3 using multipart upload
 - Real-time progress tracking
-- Resumable uploads (coming soon)
 - Direct-to-S3 uploads using pre-signed URLs
 - Responsive UI with progress indicators
 
